@@ -1,15 +1,16 @@
 package base;
 
+import com.google.common.io.Files;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import pages.HomePage;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,20 @@ public class BaseTests {
     public void tearDown() {
         driver.quit();
     }
+
+    //Only available on TestNG, since I used Junit could not make it work.
+//    @AfterMethod
+//    public void recordFailure(ITestResult result) {
+//        if (ITestResult.Failure == result.getStatus()) {
+//            var camera = (TakesScreenshot)driver;
+//            File screenshot = camera.getScreenshotAs(OutputType.FILE);
+//            try {
+//                Files.move(screenshot, new File("resources/screenshots/test.png"));
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     @Test
     public void testClickOnInputs() {
