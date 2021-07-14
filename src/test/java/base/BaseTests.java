@@ -1,27 +1,27 @@
 package base;
 
-import com.google.common.io.Files;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
 import pages.HomePage;
+import utils.EventReporter;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class BaseTests {
-    protected WebDriver driver;
+    protected EventFiringWebDriver driver;
     protected HomePage homePage;
 
     @BeforeEach
     public void setUp() {
         System.setProperty("webdriver.chrome.driver", "resources/chromedriver.exe");
-        driver = new ChromeDriver();
+        driver = new EventFiringWebDriver(new ChromeDriver(getChromeOptions()));
+        driver.register(new EventReporter());
         driver.get("https://the-internet.herokuapp.com/");
         driver.manage().window().maximize();
 //        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
@@ -61,5 +61,35 @@ public class BaseTests {
         int actual = links.size();
         int expected = 46;
         Assertions.assertEquals(expected, actual);
+    }
+
+    private ChromeOptions getChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("disable-infobars");
+//        options.setHeadless(true);
+        return options;
+    }
+
+    private void setCookie() {
+        Cookie cookie = new Cookie.Builder("tau", "123")
+                .domain("the-internet.herokuapp.com").build();
+        driver.manage().addCookie(cookie);
+    }
+
+    private void deleteCookie(Cookie cookie) {
+        driver.manage().deleteCookie(cookie);
+    }
+
+    private Boolean cookieExists(Cookie cookie) {
+        Cookie newCookie = driver.manage().getCookieNamed(cookie.getName());
+        return newCookie != null;
+    }
+
+    @Test
+    public void testDeleteCookie() {
+        setCookie();
+        Cookie cookie = driver.manage().getCookieNamed("tau");
+        deleteCookie(cookie);
+        Assertions.assertFalse(cookieExists(cookie));
     }
 }
